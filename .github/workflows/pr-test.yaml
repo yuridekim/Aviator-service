@@ -67,6 +67,12 @@ jobs:
     - name: Get dependencies
       run: |
         go get -v -t -d ./...
+    
+    - name: Build Aviator
+      env:
+        CGO_ENABLED: 0
+      run: |
+        go build -trimpath -ldflags="-w -s" -v
 
     - name: Run tests
       # Allow the job to continue even if the tests fail, so we can publish the report separately
