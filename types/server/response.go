@@ -2,24 +2,8 @@ package types
 
 import "time"
 
-type CommonCode struct {
-	Code     string // instance status : int | creat | run | nstop
-	CodeName string
-}
-
-// BlockDevicePartition means block disk parition info (such as AWS EBS)
-type BlockDevicePartition struct {
-	MountPoint    string
-	PartitionSize string
-}
-
-// NetworkInterfaceNoList is same as NIC number list
-type NetworkInterfaceNoList struct {
-	NetworkInterfaceNoList []string
-}
-
-// ServerInstance is same as compute server instance in Naver Cloud (such as AWS EC2)
-type ServerInstance struct {
+// ServerInstanceResponse is same as compute server in Naver Cloud (such as AWS EC2)
+type ServerInstanceResponse struct {
 	ServerInstanceNo               string
 	ServerName                     string
 	ServerDescription              string
@@ -55,7 +39,7 @@ type ServerInstance struct {
 	ServerSpecCode                 string
 }
 
-type ServerInstanceList struct {
+type ServerInstanceListResponse struct {
 	TotalCount   int
-	InstanceList []ServerInstance
+	InstanceList []ServerInstanceResponse
 }

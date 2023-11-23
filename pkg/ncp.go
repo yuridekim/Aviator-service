@@ -1,8 +1,6 @@
 package pkg
 
-type NcpClient struct {
-}
-
-type ServiceInterface interface {
-	ServerInterface
+type NcpService struct {
+	Token  string
+	Server *Server
 }
