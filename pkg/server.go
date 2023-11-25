@@ -1,10 +1,14 @@
 package pkg
 
-type Server struct {
-	Token string
+import (
+	"errors"
+)
+
+type ServerService struct {
+	token string
 }
 
-//go:generate mockgen -destination=mocks/mock_Server.go -package=pkg github.com/pkg/server ServerInterface
+//go:generate mockgen -destination=mocks/mock_server.go -package=mocks github.com/cloud-club/Aviator-service/pkg ServerInterface
 type ServerInterface interface {
 	Get(url string) error
 	List(url string) error
@@ -13,22 +17,33 @@ type ServerInterface interface {
 	Delete(url string) error
 }
 
-func (client *Server) Create(url string, payload interface{}) error {
+func NewServerService(token string) ServerInterface {
+	return &ServerService{token: token}
+}
+
+func (server *ServerService) GetToken() string {
+	return server.token
+}
+
+func (server *ServerService) Create(url string, payload interface{}) error {
 	return nil
 }
 
-func (client *Server) Get(url string) error {
+func (server *ServerService) Get(url string) error {
 	return nil
 }
 
-func (client *Server) List(url string) error {
+func (server *ServerService) List(url string) error {
+	if len(url) == 0 {
+		return errors.New("please input url")
+	}
 	return nil
 }
 
-func (client *Server) Delete(url string) error {
+func (server *ServerService) Delete(url string) error {
 	return nil
 }
 
-func (client *Server) Update(url string) error {
+func (server *ServerService) Update(url string) error {
 	return nil
 }
