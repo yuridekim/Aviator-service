@@ -84,5 +84,5 @@ func GenerateRequestString(request interface{}) string {
 		requestString += fmt.Sprintf("%s=%v&", requestType.Field(i).Name, fmt.Sprintf("%v", fieldValue))
 	}
 
-	return requestString[:len(requestString)-1]
+	return "?" + requestString[:len(requestString)-1]
 }
