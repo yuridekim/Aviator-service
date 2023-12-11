@@ -1,0 +1,31 @@
+with-expecter: true
+outpkg: mocks
+packages:
+    github.com/cloud-club/Aviator-service/pkg:
+        # place your package-specific config here
+        config:
+            dir: "mocks/"
+        interfaces:
+            # select the interfaces you want mocked
+            ServerInterface:
+                # Modify package-level config for this specific interface (if applicable)
+                # Default
+                # filename: "mock_{{.InterfaceName}}.go"
+                # dir: "mocks/{{.PackagePath}}"
+                # mockname: "Mock{{.InterfaceName}}"
+                # outpkg: "{{.PackageName}}"
+                config:
+    github.com/cloud-club/Aviator-service/example:
+        # place your package-specific config here
+        config:
+            dir: "mocks/"
+        interfaces:
+            # select the interfaces you want mocked
+            ExampleServerInterface:
+                # Modify package-level config for this specific interface (if applicable)
+                # Default
+                # filename: "mock_{{.InterfaceName}}.go"
+                # dir: "mocks/{{.PackagePath}}"
+                # mockname: "Mock{{.InterfaceName}}"
+                # outpkg: "{{.PackageName}}"
+                config:
