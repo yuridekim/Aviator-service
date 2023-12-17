@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	pkg.SetHeader()
+	pkg.TestCreate()
 }
