@@ -94,7 +94,7 @@ func (server *ServerService) Delete(url string) error {
 	}
 	/// NCP 헤더 설정
 	SetNCPHeader(request, "", "")
-	
+
 	// httpRequest token 설정
 	SetAuthToken(request, server.token)
 
@@ -107,12 +107,12 @@ func (server *ServerService) Delete(url string) error {
 		return fmt.Errorf("Error sending request:", err)
 	}
 	defer response.Body.Close()
-	
+
 	// 결과 반환
 	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("Unexpected response status code:", err)
 	}
-	
+
 	return nil
 }
 
@@ -127,7 +127,7 @@ func (server *ServerService) Stop(url string) error {
 	}
 	/// NCP 헤더 설정
 	SetNCPHeader(request, "", "")
-	
+
 	// httpRequest token 설정
 	SetAuthToken(request, server.token)
 
@@ -140,12 +140,12 @@ func (server *ServerService) Stop(url string) error {
 		return fmt.Errorf("Error sending request:", err)
 	}
 	defer response.Body.Close()
-	
+
 	// 결과 반환
 	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("Unexpected response status code:", err)
 	}
-	
+
 	return nil
 }
 

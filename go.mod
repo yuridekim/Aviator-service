@@ -4,6 +4,12 @@ go 1.21.1
 
 require (
 	github.com/NaverCloudPlatform/ncloud-sdk-go-v2 v1.6.8 // indirect
+	github.com/NaverCloudPlatform/ncloud-sdk-go-v2 v1.6.8
+	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	github.com/stretchr/testify v1.8.4
+)
+
+require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/golang/mock v1.6.0 // indirect
