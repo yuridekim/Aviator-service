@@ -1,10 +1,5 @@
 package types
 
-import (
-	"fmt"
-	"reflect"
-)
-
 // 필수가 아닌 필드(필수 여부: No)는 주석 처리 해두었음.
 // 필요할 때 주석 해제
 // 필수가 아닌 필드 중 (필수 여부: Conditional)는 주석 처리 안 했음.
@@ -68,21 +63,3 @@ type GetServerRequest struct{}
 type ListServerRequest struct{}
 
 type UpdateServerRequest struct{}
-
-// Request 구조체를 모두 하나의 String으로 변환해주는 함수
-// NetworkInterfaceList.N, BlockDevicePartitionList.N, BlockStorageMappingList.N의 값들에 대한 수정 필요
-func GenerateRequestString(request interface{}) string {
-	var requestString string
-	requestType := reflect.TypeOf(request)
-	requestValue := reflect.ValueOf(request)
-
-	for i := 0; i < requestType.NumField(); i++ {
-		fieldValue := requestValue.Field(i)
-		if fieldValue.IsZero() {
-			continue
-		}
-		requestString += fmt.Sprintf("%s=%v&", requestType.Field(i).Name, fmt.Sprintf("%v", fieldValue))
-	}
-
-	return "?" + requestString[:len(requestString)-1]
-}
