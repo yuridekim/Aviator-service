@@ -116,6 +116,39 @@ func (server *ServerService) Delete(url string) error {
 	return nil
 }
 
+func (server *ServerService) Stop(url string) error {
+	// url 정의
+	url += ""
+
+	// httpRequest 생성
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return fmt.Errorf("Error creating request: ", err)
+	}
+	/// NCP 헤더 설정
+	SetNCPHeader(request, "", "")
+	
+	// httpRequest token 설정
+	SetAuthToken(request, server.token)
+
+	// HTTP 클라이언트 생성
+	client := &http.Client{}
+
+	// 요청 보내기
+	response, err := client.Do(request)
+	if err != nil {
+		return fmt.Errorf("Error sending request:", err)
+	}
+	defer response.Body.Close()
+	
+	// 결과 반환
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("Unexpected response status code:", err)
+	}
+	
+	return nil
+}
+
 func (server *ServerService) Update(url string) error {
 	// url += fmt.Sprintf("?regionCode=%s&serverInstanceNo=%s&serverProductCode=%s", updateParams.regionCode, updateParams.serverInstanceNo, updateParams.serverProductCode)
 	url += "temp"
