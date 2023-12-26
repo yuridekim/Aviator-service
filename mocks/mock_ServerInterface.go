@@ -21,9 +21,9 @@ func (_m *MockServerInterface) EXPECT() *MockServerInterface_Expecter {
 	return &MockServerInterface_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: url, request
-func (_m *MockServerInterface) Create(url string, request *types.CreateServerRequest) (*types.CreateServerResponse, error) {
-	ret := _m.Called(url, request)
+// Create provides a mock function with given fields: url, request, networkInterfaceIndex
+func (_m *MockServerInterface) Create(url string, request *types.CreateServerRequest, networkInterfaceIndex int) (*types.CreateServerResponse, error) {
+	ret := _m.Called(url, request, networkInterfaceIndex)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -31,19 +31,19 @@ func (_m *MockServerInterface) Create(url string, request *types.CreateServerReq
 
 	var r0 *types.CreateServerResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, *types.CreateServerRequest) (*types.CreateServerResponse, error)); ok {
-		return rf(url, request)
+	if rf, ok := ret.Get(0).(func(string, *types.CreateServerRequest, int) (*types.CreateServerResponse, error)); ok {
+		return rf(url, request, networkInterfaceIndex)
 	}
-	if rf, ok := ret.Get(0).(func(string, *types.CreateServerRequest) *types.CreateServerResponse); ok {
-		r0 = rf(url, request)
+	if rf, ok := ret.Get(0).(func(string, *types.CreateServerRequest, int) *types.CreateServerResponse); ok {
+		r0 = rf(url, request, networkInterfaceIndex)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*types.CreateServerResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, *types.CreateServerRequest) error); ok {
-		r1 = rf(url, request)
+	if rf, ok := ret.Get(1).(func(string, *types.CreateServerRequest, int) error); ok {
+		r1 = rf(url, request, networkInterfaceIndex)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -59,13 +59,14 @@ type MockServerInterface_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - url string
 //   - request *types.CreateServerRequest
-func (_e *MockServerInterface_Expecter) Create(url interface{}, request interface{}) *MockServerInterface_Create_Call {
-	return &MockServerInterface_Create_Call{Call: _e.mock.On("Create", url, request)}
+//   - networkInterfaceIndex int
+func (_e *MockServerInterface_Expecter) Create(url interface{}, request interface{}, networkInterfaceIndex interface{}) *MockServerInterface_Create_Call {
+	return &MockServerInterface_Create_Call{Call: _e.mock.On("Create", url, request, networkInterfaceIndex)}
 }
 
-func (_c *MockServerInterface_Create_Call) Run(run func(url string, request *types.CreateServerRequest)) *MockServerInterface_Create_Call {
+func (_c *MockServerInterface_Create_Call) Run(run func(url string, request *types.CreateServerRequest, networkInterfaceIndex int)) *MockServerInterface_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(*types.CreateServerRequest))
+		run(args[0].(string), args[1].(*types.CreateServerRequest), args[2].(int))
 	})
 	return _c
 }
@@ -75,7 +76,7 @@ func (_c *MockServerInterface_Create_Call) Return(_a0 *types.CreateServerRespons
 	return _c
 }
 
-func (_c *MockServerInterface_Create_Call) RunAndReturn(run func(string, *types.CreateServerRequest) (*types.CreateServerResponse, error)) *MockServerInterface_Create_Call {
+func (_c *MockServerInterface_Create_Call) RunAndReturn(run func(string, *types.CreateServerRequest, int) (*types.CreateServerResponse, error)) *MockServerInterface_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
