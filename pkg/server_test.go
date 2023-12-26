@@ -57,25 +57,24 @@ func TestList(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-
-	var path = "createServerInstances"
-
 	testCases := []struct {
-		testName string
-		url      string
-		request  *server.CreateServerRequest
-		response *server.CreateServerResponse
-		err      error
+		testName              string
+		url                   string
+		request               *server.CreateServerRequest
+		networkInterfaceIndex int
+		response              *server.CreateServerResponse
+		err                   error
 	}{
 		{
 			testName: "Success - 성공",
-			url:      pkg.API_URL + path,
+			url:      pkg.API_URL + pkg.CREATE_SERVER_INSTANCE_PATH,
 			request: &server.CreateServerRequest{
 				ServerImageProductCode: "SW.VSVR.OS.LNX64.CNTOS.0703.B050",
 				VpcNo:                  "***04",
 				SubnetNo:               "***43",
 				NetworkInterfaceOrder:  1,
 			},
+			networkInterfaceIndex: 0,
 			response: &server.CreateServerResponse{
 				RequestId:     "e7e7e7e7-7e7e-7e7e-7e7e-7e7e7e7e7e7e",
 				ReturnCode:    0,
@@ -112,11 +111,12 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			testName: "Failed - 필수 파라미터 누락",
-			url:      pkg.API_URL + path,
+			url:      pkg.API_URL + pkg.CREATE_SERVER_INSTANCE_PATH,
 			request: &server.CreateServerRequest{
 				VpcNo:    "***04",
 				SubnetNo: "***43",
 			},
+			networkInterfaceIndex: 0,
 			response: &server.CreateServerResponse{
 				RequestId:     "e7e7e7e7-7e7e-7e7e-7e7e-7e7e7e7e7e7e",
 				ReturnCode:    0,
@@ -130,11 +130,11 @@ func TestCreate(t *testing.T) {
 		t.Helper()
 		t.Run(tc.testName, func(t *testing.T) {
 			mockServer := &mocks.MockServerInterface{}
-			mockServer.On("Create", tc.url, tc.request).
+			mockServer.On("Create", tc.url, tc.request, tc.networkInterfaceIndex).
 				Return(tc.response, tc.err).
 				Once()
 
-			response, err := mockServer.Create(pkg.API_URL+path, tc.request)
+			response, err := mockServer.Create(pkg.API_URL+pkg.CREATE_SERVER_INSTANCE_PATH, tc.request, tc.networkInterfaceIndex)
 
 			assert.Nil(t, err, "The error should be nil")
 			assert.Equal(t, tc.response, response, "The responses should be equal")
