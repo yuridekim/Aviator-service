@@ -3,7 +3,11 @@ package pkg
 import (
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
+
+	serverType "github.com/cloud-club/Aviator-service/types/server"
 )
 
 type ServerService struct {
@@ -14,7 +18,7 @@ type ServerService struct {
 type ServerInterface interface {
 	Get(url string) error
 	List(url string) error
-	Create(url string, payload interface{}) error
+	Create(url string, request *serverType.CreateServerRequest) (*serverType.CreateServerResponse, error)
 	Update(url string) error
 	Delete(url string) error
 }
@@ -27,8 +31,45 @@ func (server *ServerService) GetToken() string {
 	return server.token
 }
 
-func (server *ServerService) Create(url string, payload interface{}) error {
-	return nil
+func (server *ServerService) Create(url string, request *serverType.CreateServerRequest) (*serverType.CreateServerResponse, error) {
+	// Set url with query parameters
+	requestParams := serverType.CreateRequestString(request)
+
+	// Create an HTTP request
+	req, err := http.NewRequest(http.MethodGet, url+requestParams, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Set HTTP header for NCP authorization
+	SetNCPHeader(req, "45x3qDmooHFxwJywHbbK", "xUFTKEw2POsYl5AgBSxf4K2ZJm1JHJ51KHN5BDK8")
+
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	// Check the response status
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected response status: %s", resp.Status)
+	}
+
+	responseByteData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	var csr *serverType.CreateServerResponse
+	responseInterface, err := serverType.MapResponse(responseByteData, &csr)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	// interface{} 타입으로 변환된 responseInterface를 다시 CreateServerResponse 타입으로 변환
+	responseStruct := responseInterface.(*serverType.CreateServerResponse)
+
+	return responseStruct, err
 }
 
 func (server *ServerService) Get(url string) error {

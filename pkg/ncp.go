@@ -2,9 +2,10 @@ package pkg
 
 import (
 	"errors"
+	"time"
+
 	"github.com/cloud-club/Aviator-service/types/auth"
 	"github.com/dgrijalva/jwt-go/v4"
-	"time"
 )
 
 const (
@@ -13,8 +14,11 @@ const (
 )
 
 type NcpService struct {
-	token  string
-	Server ServerInterface
+	token              string
+	Server             ServerInterface
+	Network            NetworkInterface
+	Subnet             SubnetInterface
+	AccessControlGroup AccessControlGroupInterface
 }
 
 func NewNcpService(token string) *NcpService {
