@@ -1,9 +1,6 @@
 package types
 
 import (
-	"encoding/xml"
-	"fmt"
-	"reflect"
 	"time"
 )
 
@@ -61,21 +58,3 @@ type ListServerResponse struct{}
 type UpdateServerResponse struct{}
 
 type DeleteServerResponse struct{}
-
-// Response XML을 Go struct로 변환하는 함수
-// responseBody: API 서버로부터 받은 XML response body
-// v: interface{} 타입의 struct 포인터
-// 예시: mapResponse(responseBody, &CreateServerResponse{})
-func MapResponse(responseBody []byte, v interface{}) (interface{}, error) {
-	rv := reflect.ValueOf(v)                    // reflect를 이용해 v가 어떤 구조체 타입인지 알아냄
-	if rv.Kind() != reflect.Ptr || rv.IsNil() { // 만약 v가 포인터가 아니거나 nil이면 에러 반환
-		return nil, fmt.Errorf("non-nil pointer expected")
-	}
-
-	err := xml.Unmarshal(responseBody, v) // responseBody를 v로 매핑. 만약 CreateServerResponse 타입이면 CreateServerResponse로 매핑
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling response: %v", err)
-	}
-
-	return v, nil
-}
