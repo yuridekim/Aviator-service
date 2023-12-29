@@ -1,9 +1,25 @@
 package types
 
+import (
+	"encoding/xml"
+	"fmt"
+	"net/url"
+	"reflect"
+	"regexp"
+	"strings"
+	"time"
+	// types "github.com/cloud-club/Aviator-service/types/server"
+)
+
 // 필수가 아닌 필드(필수 여부: No)는 주석 처리 해두었음.
 // 필요할 때 주석 해제
 // 필수가 아닌 필드 중 (필수 여부: Conditional)는 주석 처리 안 했음.
 // 필요할 때 주석 처리
+
+type RequestInterface interface {
+	RequestString() string
+	MapResponse(responseBody []byte) (interface{}, error)
+}
 type CreateServerRequest struct {
 	//RegionCode                        string               `json:"regionCode"`
 	// ServerImageProductCode 와 MemberServerImageInstanceNo 둘 중 하나는 무조건 필수 기재
@@ -72,8 +88,165 @@ type CreateServerRequest struct {
 	//ResponseFormatType string `json:"responseFormatType"`
 }
 
-type GetServerRequest struct{}
+type GetServerRequest struct {
+	serverInstanceNo string `json:"serverInstanceNo"`
+}
 
-type ListServerRequest struct{}
+type ListServerRequest struct {
+	RegionCode string `json:"regionCode"`
+}
 
-type UpdateServerRequest struct{}
+func (ssr ListServerRequest) RequestString() string {
+	v := url.Values{}
+	s := reflect.ValueOf(ssr)
+
+	for i := 0; i < s.NumField(); i++ {
+		field := s.Field(i)
+		jsonTag := strings.Split(s.Type().Field(i).Tag.Get("json"), ",")[0]
+		v.Add(jsonTag, fmt.Sprint(field.Interface()))
+	}
+
+	return "?" + v.Encode()
+}
+
+func processTimestamp(input []byte) (resultReponse []byte) {
+	regex := regexp.MustCompile(`(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})([+-]\d{4})`)
+
+	// Find all occurrences of timestamps in the input
+	matches := regex.FindAllSubmatchIndex(input, -1)
+
+	if len(matches) > 0 {
+		// Create a copy of the original input
+		modifiedInput := make([]byte, len(input)+len(matches))
+		copy(modifiedInput, input)
+
+		for i, match := range matches {
+			start, end := match[2]-4*i, match[3]-4*i
+			appendingTS := []byte{90} // represents 'Z' in ascii
+			originalTS := make([]byte, 19)
+			copy(originalTS, modifiedInput[start:end][:19])
+			timestamp := append(originalTS, appendingTS...)
+			modifiedInput = append(modifiedInput[:start], append([]byte(timestamp), modifiedInput[end+5:]...)...)
+		}
+		return modifiedInput
+	} else {
+		fmt.Println("Timestamps not found in the input")
+	}
+	return input
+}
+
+func (ssr ListServerRequest) MapResponse(responseBody []byte) (interface{}, error) {
+	v := &ListServerResponse{}
+
+	responseBody = processTimestamp(responseBody)
+	err := xml.Unmarshal(responseBody, v) // responseBody를 v로 매핑. 만약 CreateServerResponse 타입이면 CreateServerResponse로 매핑
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %v", err)
+	}
+
+	return v, nil
+}
+
+type StopServerRequest struct {
+	ServerNo string `json:"serverInstanceNoList.1"`
+}
+
+func (ssr StopServerRequest) MapResponse(responseBody []byte) (interface{}, error) {
+	v := &StopServerResponse{}
+
+	responseBody = processTimestamp(responseBody)
+	err := xml.Unmarshal(responseBody, v) // responseBody를 v로 매핑. 만약 CreateServerResponse 타입이면 CreateServerResponse로 매핑
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %v", err)
+	}
+
+	return v, nil
+}
+
+func (ssr StopServerRequest) RequestString() string {
+	v := url.Values{}
+	s := reflect.ValueOf(ssr)
+
+	for i := 0; i < s.NumField(); i++ {
+		field := s.Field(i)
+		jsonTag := strings.Split(s.Type().Field(i).Tag.Get("json"), ",")[0]
+		v.Add(jsonTag, fmt.Sprint(field.Interface()))
+	}
+
+	return "?" + v.Encode()
+}
+
+type DeleteServerRequest struct {
+	VpcNo                      string `json:"vpcNo"`
+	SubnetNo                   string `json:"subnetNo"`
+	niOrder                    string `json:"networkInterfaceList.N.networkInterfaceOrder"`
+	serverImageProductCode     string `json:"serverImageProductCode"`
+	niAccessControlGroupNoList string `json:networkInterfaceList.1.accessControlGroupNoList.1"`
+}
+
+// ServerInstance is same as compute server in Naver Cloud (such as AWS EC2)
+// 필수가 아닌 필드(필수 여부: No)는 주석 처리 해두었음.
+// 필요할 때 주석 해제
+type ServerInstance struct {
+	ServerInstanceNo string `xml:"serverInstanceNo" json:"serverInstanceNo"`
+	ServerName       string `xml:"serverName" json:"serverName"`
+	//ServerDescription              string
+	CpuCount     int        `xml:"cpuCount" json:"cpuCount"`
+	MemorySize   int64      `xml:"memorySize" json:"memorySize"`
+	PlatformType CommonCode `xml:"platformType" json:"platformType"`
+	LoginKeyName string     `xml:"loginKeyName" json:"loginKeyName"`
+	//PublicIpInstanceNo             string
+	//PublicIp                       string
+	ServerInstanceStatus       CommonCode             `xml:"serverInstanceStatus" json:"serverInstanceStatus"`
+	ServerInstanceOperation    CommonCode             `xml:"serverInstanceOperation" json:"serverInstanceOperation"`
+	ServerInstanceStatusName   string                 `xml:"serverInstanceStatusName" json:"serverInstanceStatusName"`
+	CreateDate                 time.Time              `xml:"createDate" json:"createDate"`
+	Uptime                     time.Time              `xml:"uptime" json:"uptime"`
+	ServerImageProductCode     string                 `xml:"serverImageProductCode" json:"serverImageProductCode"`
+	ServerProductCode          string                 `xml:"serverProductCode" json:"serverProductCode"`
+	IsProtectServerTermination bool                   `xml:"isProtectServerTermination" json:"isProtectServerTermination"`
+	ZoneCode                   string                 `xml:"zoneCode" json:"zoneCode"`
+	RegionCode                 string                 `xml:"regionCode" json:"regionCode"`
+	VpcNo                      string                 `xml:"vpcNo" json:"vpcNo"`
+	SubnetNo                   string                 `xml:"subnetNo" json:"subnetNo"`
+	NetworkInterfaceNoList     NetworkInterfaceNoList `xml:"networkInterfaceNoList" json:"networkInterfaceNoList"`
+	//InitScriptNo                   string
+	ServerInstanceType             CommonCode `xml:"serverInstanceType" json:"serverInstanceType"`
+	BaseBlockStorageDiskType       CommonCode `xml:"baseBlockStorageDiskType" json:"baseBlockStorageDiskType"`
+	BaseBlockStorageDiskDetailType CommonCode `xml:"baseBlockStorageDiskDetailType" json:"baseBlockStorageDiskDetailType"`
+	//PlacementGroupNo               string
+	//PlacementGroupName             string
+	//MemberServerImageInstanceNo    string
+	//BlockDevicePartitionList       []BlockDevicePartition // Assuming BlockDevicePartition is a defined struct
+	HypervisorType CommonCode `xml:"hypervisorType" json:"hypervisorType"`
+	ServerImageNo  string     `xml:"serverImageNo" json:"serverImageNo"`
+	ServerSpecCode string     `xml:"serverSpecCode" json:"serverSpecCode"`
+}
+
+type CreateServerResponse struct {
+	RequestId          string           `xml:"requestId"`
+	ReturnCode         int              `xml:"returnCode"`
+	ReturnMessage      string           `xml:"returnMessage"`
+	TotalRows          int              `xml:"totalRows"`
+	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
+}
+
+type GetServerResponse struct{}
+
+type ListServerResponse struct {
+	ReturnCode         int              `xml:"returnCode"`
+	ReturnMessage      string           `xml:"returnMessage"`
+	TotalRows          int              `xml:"totalRows"`
+	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
+}
+
+type UpdateServerResponse struct{}
+
+type DeleteServerResponse struct{}
+
+type StopServerResponse struct {
+	ReturnCode         int              `xml:"returnCode"`
+	ReturnMessage      string           `xml:"returnMessage"`
+	TotalRows          int              `xml:"totalRows"`
+	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
+}
