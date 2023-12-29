@@ -19,10 +19,6 @@ func NewServerService(accessKey, secretKey string) *ServerService {
 	return &ServerService{accessKey: accessKey, secretKey: secretKey}
 }
 
-func (server *ServerService) GetToken() (string, string) {
-	return server.accessKey, server.secretKey
-}
-
 func (server *ServerService) CallApi(url string, request types.RequestInterface) (interface{}, error) {
 	// Set url with query parameters
 	requestParams := request.RequestString()
@@ -60,16 +56,6 @@ func (server *ServerService) CallApi(url string, request types.RequestInterface)
 		log.Fatal(err)
 		return nil, err
 	}
-
-	// var csr *serverType.CreateServerResponse
-	// responseInterface, err := serverType.MapResponse(responseByteData, &csr)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return nil, err
-	// }
-
-	// interface{} 타입으로 변환된 responseInterface를 다시 CreateServerResponse 타입으로 변환
-	// responseStruct := responseInterface.(*types.CreateServerResponse)
 
 	return responseStruct, err
 }

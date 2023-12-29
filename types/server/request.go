@@ -139,7 +139,7 @@ func (ssr ListServerRequest) MapResponse(responseBody []byte) (interface{}, erro
 	v := &ListServerResponse{}
 
 	responseBody = processTimestamp(responseBody)
-	err := xml.Unmarshal(responseBody, v) // responseBody를 v로 매핑. 만약 CreateServerResponse 타입이면 CreateServerResponse로 매핑
+	err := xml.Unmarshal(responseBody, v)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %v", err)
 	}
@@ -148,14 +148,14 @@ func (ssr ListServerRequest) MapResponse(responseBody []byte) (interface{}, erro
 }
 
 type StopServerRequest struct {
-	ServerNo string `json:"serverInstanceNoList.1"`
+	ServerNo string `json:"serverInstanceNoList.1"` // limiting only to a single server instance
 }
 
 func (ssr StopServerRequest) MapResponse(responseBody []byte) (interface{}, error) {
 	v := &StopServerResponse{}
 
 	responseBody = processTimestamp(responseBody)
-	err := xml.Unmarshal(responseBody, v) // responseBody를 v로 매핑. 만약 CreateServerResponse 타입이면 CreateServerResponse로 매핑
+	err := xml.Unmarshal(responseBody, v)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %v", err)
 	}
@@ -177,11 +177,63 @@ func (ssr StopServerRequest) RequestString() string {
 }
 
 type DeleteServerRequest struct {
-	VpcNo                      string `json:"vpcNo"`
-	SubnetNo                   string `json:"subnetNo"`
-	niOrder                    string `json:"networkInterfaceList.N.networkInterfaceOrder"`
-	serverImageProductCode     string `json:"serverImageProductCode"`
-	niAccessControlGroupNoList string `json:networkInterfaceList.1.accessControlGroupNoList.1"`
+	ServerNo string `json:"serverInstanceNoList.1"` // limiting only to a single server instance
+}
+
+func (ssr DeleteServerRequest) MapResponse(responseBody []byte) (interface{}, error) {
+	v := &DeleteServerResponse{}
+
+	responseBody = processTimestamp(responseBody)
+	err := xml.Unmarshal(responseBody, v)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %v", err)
+	}
+
+	return v, nil
+}
+
+func (ssr DeleteServerRequest) RequestString() string {
+	v := url.Values{}
+	s := reflect.ValueOf(ssr)
+
+	for i := 0; i < s.NumField(); i++ {
+		field := s.Field(i)
+		jsonTag := strings.Split(s.Type().Field(i).Tag.Get("json"), ",")[0]
+		v.Add(jsonTag, fmt.Sprint(field.Interface()))
+	}
+
+	return "?" + v.Encode()
+}
+
+type UpdateServerRequest struct {
+	ServerInstanceNo  string `json:"serverInstanceNo"`
+	ServerProductCode string `json:"serverProductCode"` //conditional
+	// ServerSpecCode    string `json:"serverSpecCode"`    //conditional
+}
+
+func (ssr UpdateServerRequest) MapResponse(responseBody []byte) (interface{}, error) {
+	v := &UpdateServerResponse{}
+
+	responseBody = processTimestamp(responseBody)
+	err := xml.Unmarshal(responseBody, v)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %v", err)
+	}
+
+	return v, nil
+}
+
+func (ssr UpdateServerRequest) RequestString() string {
+	v := url.Values{}
+	s := reflect.ValueOf(ssr)
+
+	for i := 0; i < s.NumField(); i++ {
+		field := s.Field(i)
+		jsonTag := strings.Split(s.Type().Field(i).Tag.Get("json"), ",")[0]
+		v.Add(jsonTag, fmt.Sprint(field.Interface()))
+	}
+
+	return "?" + v.Encode()
 }
 
 // ServerInstance is same as compute server in Naver Cloud (such as AWS EC2)
@@ -240,9 +292,20 @@ type ListServerResponse struct {
 	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
 }
 
-type UpdateServerResponse struct{}
+type UpdateServerResponse struct {
+	RequestId          string           `xml:"requestId"`
+	ReturnCode         int              `xml:"returnCode"`
+	ReturnMessage      string           `xml:"returnMessage"`
+	TotalRows          int              `xml:"totalRows"`
+	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
+}
 
-type DeleteServerResponse struct{}
+type DeleteServerResponse struct {
+	ReturnCode         int              `xml:"returnCode"`
+	ReturnMessage      string           `xml:"returnMessage"`
+	TotalRows          int              `xml:"totalRows"`
+	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
+}
 
 type StopServerResponse struct {
 	ReturnCode         int              `xml:"returnCode"`
