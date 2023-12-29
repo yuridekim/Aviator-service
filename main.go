@@ -15,7 +15,7 @@ func main() {
 	stopReturn := test_stop(serverNo, vserver)
 	fmt.Println("Is stop successful: ", stopReturn)
 
-	time.Sleep(10) //wait for stop to take place
+	time.Sleep(20 * time.Second) //wait for stop to take place
 
 	deleteReturn := test_delete(serverNo, vserver)
 	fmt.Println("Is deletion(termination) successful: ", deleteReturn)
