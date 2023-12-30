@@ -9,8 +9,12 @@ import (
 )
 
 func main() {
-	vserver := pkg.NewServerService("access key", "secret key")
+	vserver := pkg.NewServerService("b7e6Eq3fmVMGKBCCSLbi", "S6ewbCjNSCk5kQLRDHvqXDGPqTUDwDn2LLhmIKma")
 	serverNo := test_list(0, vserver)
+
+	if serverNo == "21659951" { // protection for my server
+		return
+	}
 
 	stopReturn := test_stop(serverNo, vserver)
 	fmt.Println("Is stop successful: ", stopReturn)
@@ -47,8 +51,8 @@ func test_delete(serverNo string, vserver *pkg.ServerService) string { // server
 	dsr := types.DeleteServerRequest{ServerNo: serverNo}
 	response, err := vserver.CallApi(pkg.API_URL+pkg.DELETE_SERVER_INSTANCE_PATH, dsr)
 	responseStruct := response.(*types.DeleteServerResponse)
-	fmt.Println("Error for stopping: ", err)
-	fmt.Println("responsestruct for stopping:", responseStruct)
+	fmt.Println("Error for deletion: ", err)
+	fmt.Println("responsestruct for deletion:", responseStruct)
 
 	return responseStruct.ReturnMessage
 }
