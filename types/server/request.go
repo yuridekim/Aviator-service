@@ -88,8 +88,33 @@ type CreateServerRequest struct {
 	//ResponseFormatType string `json:"responseFormatType"`
 }
 
-type GetServerRequest struct {
-	serverInstanceNo string `json:"serverInstanceNo"`
+type GetProductRequest struct {
+	ServerImageProductCode string `json:"serverImageProductCode"`
+}
+
+func (ssr GetProductRequest) RequestString() string {
+	v := url.Values{}
+	s := reflect.ValueOf(ssr)
+
+	for i := 0; i < s.NumField(); i++ {
+		field := s.Field(i)
+		jsonTag := strings.Split(s.Type().Field(i).Tag.Get("json"), ",")[0]
+		v.Add(jsonTag, fmt.Sprint(field.Interface()))
+	}
+
+	return "?" + v.Encode()
+}
+
+func (ssr GetProductRequest) MapResponse(responseBody []byte) (interface{}, error) {
+	v := &GetProductResponse{}
+
+	responseBody = processTimestamp(responseBody)
+	err := xml.Unmarshal(responseBody, v)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %v", err)
+	}
+
+	return v, nil
 }
 
 type ListServerRequest struct {
@@ -312,4 +337,27 @@ type StopServerResponse struct {
 	ReturnMessage      string           `xml:"returnMessage"`
 	TotalRows          int              `xml:"totalRows"`
 	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
+}
+
+type ProductInstance struct {
+	ProductCode          string     `xml:"productCode" json:"productCode"`
+	ProductName          string     `xml:"productName" json:"productName"`
+	ProductType          CommonCode `xml:"productType" json:"productType"`
+	ProductDescription   string     `xml:"productDescription" json:"productDescription"`
+	InfraResourceType    CommonCode `xml:"infraResourceType" json:"infraResourceType"`
+	CpuCount             string     `xml:"cpuCount" json:"cpuCount"`
+	MemorySize           string     `xml:"memorySize" json:"memorySize"`
+	BaseBlockStorageSize string     `xml:"baseBlockStorageSize" json:"baseBlockStorageSize"`
+	OsInformation        string     `xml:"osInformation" json:"osInformation"`
+	DiskType             CommonCode `xml:"diskType" json:"diskType"`
+	DbKindCode           string     `xml:"dbKindCode" json:"dbKindCode"`
+	AddBlockStorageSize  string     `xml:"addBlockStorageSize" json:"addBlockStorageSize"`
+	GenerationCode       string     `xml:"generationCode" json:"generationCode"`
+}
+type GetProductResponse struct {
+	RequestId     string            `xml:"requestId"`
+	ReturnCode    int               `xml:"returnCode"`
+	ReturnMessage string            `xml:"returnMessage"`
+	TotalRows     int               `xml:"totalRows"`
+	ProductList   []ProductInstance `xml:"productList>product"`
 }

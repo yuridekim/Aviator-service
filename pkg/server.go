@@ -38,9 +38,9 @@ func (server *ServerService) CallApi(url string, request types.RequestInterface)
 	}
 
 	// Check the response status
-	// if resp.StatusCode != http.StatusOK {
-	// 	return nil, fmt.Errorf("unexpected response status: %s", resp.Status)
-	// }
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected response status: %s", resp.Status)
+	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -48,8 +48,8 @@ func (server *ServerService) CallApi(url string, request types.RequestInterface)
 		return nil, err
 	}
 
-	fmt.Println("request:", requestParams)
-	fmt.Println(string(responseByteData))
+	// fmt.Println("request:", requestParams)
+	// fmt.Println(string(responseByteData))
 
 	responseStruct, err := request.MapResponse(responseByteData)
 	if err != nil {
