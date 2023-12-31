@@ -16,6 +16,6 @@ type Subnet struct {
 }
 
 type SubnetList struct {
-	TotalRows int      `xml:"totalRows"`
-	Subnet    []Subnet `xml:"subnetList>subnet"`
+	TotalRows  int      `xml:"totalRows"`
+	SubnetList []Subnet `xml:"subnetList>subnet"`
 }
