@@ -14,8 +14,8 @@ const (
 )
 
 type NcpService struct {
-	token              string
-	Server             ServerInterface
+	token string
+	// Server             ServerInterface
 	Network            NetworkInterface
 	Subnet             SubnetInterface
 	AccessControlGroup AccessControlGroupInterface

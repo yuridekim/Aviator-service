@@ -52,3 +52,16 @@ func MapResponse(responseBody []byte, v interface{}) (interface{}, error) {
 
 	return v, nil
 }
+
+func RequestString(req interface{}) string {
+	v := url.Values{}
+	s := reflect.ValueOf(req).Elem()
+
+	for i := 0; i < s.NumField(); i++ {
+		field := s.Field(i)
+		jsonTag := strings.Split(s.Type().Field(i).Tag.Get("json"), ",")[0]
+		v.Add(jsonTag, fmt.Sprint(field.Interface()))
+	}
+
+	return "?" + v.Encode()
+}
