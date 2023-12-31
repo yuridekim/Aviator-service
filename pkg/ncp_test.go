@@ -3,16 +3,17 @@ package pkg_test
 import (
 	"errors"
 	"fmt"
+	"log"
+	"testing"
+
 	"github.com/cloud-club/Aviator-service/pkg"
 	"github.com/cloud-club/Aviator-service/types/auth"
 	"github.com/stretchr/testify/assert"
-	"log"
-	"testing"
 )
 
 func TestCreateAndVerifyToken_success(t *testing.T) {
 	ncp := pkg.NewNcpService("ncp service token")
-	ncp.Server = pkg.NewServerService("ncp server token")
+	ncp.Server = pkg.NewServerService("ncp access key", "ncp secret key")
 
 	err := ncp.CreateToken("admin", "CloudClubAdmin", []string{"admin"})
 	if err != nil {
@@ -32,7 +33,7 @@ func TestCreateAndVerifyToken_success(t *testing.T) {
 
 func TestCreateAndVerifyToken_fail_token_is_invalid(t *testing.T) {
 	ncp := pkg.NewNcpService("ncp service token")
-	ncp.Server = pkg.NewServerService("ncp server token")
+	ncp.Server = pkg.NewServerService("ncp access key", "ncp secret key")
 
 	err := ncp.CreateToken("admin", "CloudClubAdmin", []string{"admin"})
 	if err != nil {

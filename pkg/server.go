@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -21,11 +20,58 @@ func NewServerService(accessKey, secretKey string) *ServerService {
 }
 
 type ServerInterface interface {
-	Get(url string) error
-	List(url string) error
+	List(url string, request *types.ListServerRequest) (*types.ListServerResponse, error)
 	Create(url string, request *types.CreateServerRequest, params []int) (*types.CreateServerResponse, error)
-	Update(url string) error
-	Delete(url string) error
+	Update(url string, request *types.UpdateServerRequest) (*types.UpdateServerResponse, error)
+	Stop(url string, request *types.StopServerRequest) (*types.StopServerResponse, error)
+	Delete(url string, request *types.DeleteServerRequest) (*types.DeleteServerResponse, error)
+}
+
+func (server *ServerService) List(url string, request *types.ListServerRequest) (*types.ListServerResponse, error) {
+	requestParams := types.RequestString(request)
+
+	// Create an HTTP request
+	req, err := http.NewRequest(http.MethodGet, url+requestParams, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Set HTTP header for NCP authorization
+	SetNCPHeader(req, server.accessKey, server.secretKey)
+
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the response status
+	if resp.StatusCode != http.StatusOK {
+		// Read the response body and show the body message in error.
+		responseByteData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("%s", responseByteData)
+	}
+
+	responseByteData, err := io.ReadAll(resp.Body)
+	println(string(responseByteData))
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	var csr *types.ListServerResponse
+	responseInterface, err := types.MapResponse(responseByteData, &csr)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	responseStruct := responseInterface.(**types.ListServerResponse)
+
+	return *responseStruct, err
 }
 
 func (server *ServerService) Create(url string, request *types.CreateServerRequest, params []int) (*types.CreateServerResponse, error) {
@@ -81,110 +127,143 @@ func (server *ServerService) Create(url string, request *types.CreateServerReque
 	return *responseStruct, err
 }
 
-func (server *ServerService) Get(url string) error {
-	return nil
-}
-
-func (server *ServerService) List(url string) error {
-	if len(url) == 0 {
-		return errors.New("please input url")
-	}
-	return nil
-}
-
-func (server *ServerService) Delete(url string) error {
-	// url 정의
-	url += ""
-
-	// httpRequest 생성
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return fmt.Errorf("Error creating request: ", err)
-	}
-	/// NCP 헤더 설정
-	SetNCPHeader(request, "", "")
-
-	// httpRequest token 설정
-	SetAuthToken(request, server.token)
-
-	// HTTP 클라이언트 생성
-	client := &http.Client{}
-
-	// 요청 보내기
-	response, err := client.Do(request)
-	if err != nil {
-		return fmt.Errorf("Error sending request:", err)
-	}
-	defer response.Body.Close()
-
-	// 결과 반환
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("Unexpected response status code:", err)
-	}
-
-	return nil
-}
-
-func (server *ServerService) Stop(url string) error {
-	// url 정의
-	url += ""
-
-	// httpRequest 생성
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return fmt.Errorf("Error creating request: ", err)
-	}
-	/// NCP 헤더 설정
-	SetNCPHeader(request, "", "")
-
-	// httpRequest token 설정
-	SetAuthToken(request, server.token)
-
-	// HTTP 클라이언트 생성
-	client := &http.Client{}
-
-	// 요청 보내기
-	response, err := client.Do(request)
-	if err != nil {
-		return fmt.Errorf("Error sending request:", err)
-	}
-	defer response.Body.Close()
-
-	// 결과 반환
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("Unexpected response status code:", err)
-	}
-
-	return nil
-}
-
-func (server *ServerService) Update(url string) error {
-	// url += fmt.Sprintf("?regionCode=%s&serverInstanceNo=%s&serverProductCode=%s", updateParams.regionCode, updateParams.serverInstanceNo, updateParams.serverProductCode)
-	url += "temp"
+func (server *ServerService) Update(url string, request *types.UpdateServerRequest) (*types.UpdateServerResponse, error) {
+	requestParams := types.RequestString(request)
 
 	// Create an HTTP request
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequest(http.MethodGet, url+requestParams, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	// Set common headers
-	GetCommonHeader(req)
-
-	// Set authorization token
-	SetAuthToken(req, server.token)
+	// Set HTTP header for NCP authorization
+	SetNCPHeader(req, server.accessKey, server.secretKey)
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer resp.Body.Close()
 
 	// Check the response status
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response status: %s", resp.Status)
+		// Read the response body and show the body message in error.
+		responseByteData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("%s", responseByteData)
 	}
 
-	return nil
+	responseByteData, err := io.ReadAll(resp.Body)
+	println(string(responseByteData))
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	var csr *types.UpdateServerResponse
+	responseInterface, err := types.MapResponse(responseByteData, &csr)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	responseStruct := responseInterface.(**types.UpdateServerResponse)
+
+	return *responseStruct, err
+}
+
+func (server *ServerService) Stop(url string, request *types.StopServerRequest) (*types.StopServerResponse, error) {
+	requestParams := types.RequestString(request)
+
+	// Create an HTTP request
+	req, err := http.NewRequest(http.MethodGet, url+requestParams, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Set HTTP header for NCP authorization
+	SetNCPHeader(req, server.accessKey, server.secretKey)
+
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the response status
+	if resp.StatusCode != http.StatusOK {
+		// Read the response body and show the body message in error.
+		responseByteData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("%s", responseByteData)
+	}
+
+	responseByteData, err := io.ReadAll(resp.Body)
+	println(string(responseByteData))
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	var csr *types.StopServerResponse
+	responseInterface, err := types.MapResponse(responseByteData, &csr)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	responseStruct := responseInterface.(**types.StopServerResponse)
+
+	return *responseStruct, err
+}
+
+func (server *ServerService) Delete(url string, request *types.DeleteServerRequest) (*types.DeleteServerResponse, error) {
+	requestParams := types.RequestString(request)
+
+	// Create an HTTP request
+	req, err := http.NewRequest(http.MethodGet, url+requestParams, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Set HTTP header for NCP authorization
+	SetNCPHeader(req, server.accessKey, server.secretKey)
+
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the response status
+	if resp.StatusCode != http.StatusOK {
+		// Read the response body and show the body message in error.
+		responseByteData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("%s", responseByteData)
+	}
+
+	responseByteData, err := io.ReadAll(resp.Body)
+	println(string(responseByteData))
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	var csr *types.DeleteServerResponse
+	responseInterface, err := types.MapResponse(responseByteData, &csr)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	responseStruct := responseInterface.(**types.DeleteServerResponse)
+
+	return *responseStruct, err
 }
