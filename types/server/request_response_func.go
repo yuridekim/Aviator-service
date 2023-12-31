@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
 // Request 구조체를 모두 하나의 String으로 변환해주는 함수
-func CreateRequestString(csr *CreateServerRequest, networkInterfaceIndex int) string {
+func CreateRequestString(csr *CreateServerRequest, networkInterfaceIndex int, acgNoList int) string {
 	v := url.Values{}
 	s := reflect.ValueOf(csr).Elem()
 
@@ -26,7 +27,8 @@ func CreateRequestString(csr *CreateServerRequest, networkInterfaceIndex int) st
 		}
 
 		if fieldName == "AccessControlGroupNoListN" {
-
+			jsonTag = strings.Replace(jsonTag, "N", fmt.Sprint(networkInterfaceIndex), 1)
+			jsonTag = strings.Replace(jsonTag, ".N", "."+fmt.Sprint(acgNoList), 1)
 		}
 
 		v.Add(jsonTag, fmt.Sprint(field.Interface()))
@@ -45,6 +47,7 @@ func MapResponse(responseBody []byte, v interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("non-nil pointer expected")
 	}
 
+	responseBody = processTimestamp(responseBody)
 	err := xml.Unmarshal(responseBody, v) // responseBody를 v로 매핑. 만약 CreateServerResponse 타입이면 CreateServerResponse로 매핑
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling response: %v", err)
@@ -64,4 +67,30 @@ func RequestString(req interface{}) string {
 	}
 
 	return "?" + v.Encode()
+}
+
+func processTimestamp(input []byte) (resultReponse []byte) {
+	regex := regexp.MustCompile(`(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})([+-]\d{4})`)
+
+	// Find all occurrences of timestamps in the input
+	matches := regex.FindAllSubmatchIndex(input, -1)
+
+	if len(matches) > 0 {
+		// Create a copy of the original input
+		modifiedInput := make([]byte, len(input)+len(matches))
+		copy(modifiedInput, input)
+
+		for i, match := range matches {
+			start, end := match[2]-4*i, match[3]-4*i
+			appendingTS := []byte{90} // represents 'Z' in ascii
+			originalTS := make([]byte, 19)
+			copy(originalTS, modifiedInput[start:end][:19])
+			timestamp := append(originalTS, appendingTS...)
+			modifiedInput = append(modifiedInput[:start], append([]byte(timestamp), modifiedInput[end+5:]...)...)
+		}
+		return modifiedInput
+	} else {
+		fmt.Println("Timestamps not found in the input")
+	}
+	return input
 }

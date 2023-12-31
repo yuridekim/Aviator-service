@@ -14,11 +14,13 @@ const (
 )
 
 type NcpService struct {
-	token string
-	// Server             ServerInterface
+	token              string
+	Server             ServerInterface
 	Network            NetworkInterface
 	Subnet             SubnetInterface
 	AccessControlGroup AccessControlGroupInterface
+	Vpc                VpcInterface
+	ServerImageProduct ProductInterface
 }
 
 func NewNcpService(token string) *NcpService {

@@ -10,6 +10,6 @@ type AccessControlGroup struct {
 }
 
 type AccessControlGroupList struct {
-	TotalRows             int                  `xml:"totalRows"`
-	AccessControlGroupSet []AccessControlGroup `xml:"accessControlGroupList>accessControlGroup"`
+	TotalRows              int                  `xml:"totalRows"`
+	AccessControlGroupList []AccessControlGroup `xml:"accessControlGroupList>accessControlGroup"`
 }
