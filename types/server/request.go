@@ -89,6 +89,9 @@ type ListServerRequest struct {
 	RegionCode string `json:"regionCode"`
 }
 
+type StartServerRequest struct {
+	ServerNo string `json:"serverInstanceNoList.1"` // limiting only to a single server instance
+}
 type StopServerRequest struct {
 	ServerNo string `json:"serverInstanceNoList.1"` // limiting only to a single server instance
 }

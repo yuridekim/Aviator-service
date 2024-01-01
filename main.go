@@ -7,6 +7,7 @@ import (
 
 	pkg "github.com/cloud-club/Aviator-service/pkg"
 	server "github.com/cloud-club/Aviator-service/types/server"
+	types "github.com/cloud-club/Aviator-service/types/server"
 )
 
 func getImageProductList(ncp *pkg.NcpService) {
@@ -115,10 +116,12 @@ func list(ncp *pkg.NcpService) {
 
 	//Print response
 	fmt.Println(serverListResponse)
+	// fmt.Println("server: ", serverListResponse.ServerInstanceList[0])
+	// fmt.Println("status: ", serverListResponse.ServerInstanceList[0].ServerInstanceStatus.Code)
 }
 
 func update(ncp *pkg.NcpService) {
-	usr := &server.UpdateServerRequest{ServerInstanceNo: "21741451", ServerProductCode: "SVR.VSVR.HICPU.C004.M008.NET.HDD.B050.G002"}
+	usr := &server.UpdateServerRequest{ServerInstanceNo: "21741451", ServerProductCode: "SVR.VSVR.STAND.C032.M128.NET.HDD.B050.G002"}
 
 	updateServerResponse, err := ncp.Server.Update(pkg.API_URL+pkg.UPDATE_SERVER_INSTANCE_PATH, usr)
 	if err != nil {
@@ -141,6 +144,16 @@ func delete(ncp *pkg.NcpService) {
 
 	//Print response
 	fmt.Println(deleteServerResponse)
+}
+
+func start(ncp *pkg.NcpService) {
+	ssr := &types.StartServerRequest{ServerNo: "21763788"}
+	_, err := ncp.Server.Start(pkg.API_URL+pkg.START_SERVER_INSTANCE_PATH, ssr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 }
 
 func main() {
@@ -174,11 +187,15 @@ func main() {
 	list(ncp)
 
 	// 7. Stop server instance
-	//stop(ncp)
+	stop(ncp)
 	// list(ncp)
-	// time.Sleep(20 * time.Second)
 
-	// // Update server instance
+	// Start server instance
+	// start(ncp)
+
+	// list(ncp)
+
+	// Update server instance
 	// update(ncp)
 	// time.Sleep(20 * time.Second)
 	// list(ncp)

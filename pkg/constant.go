@@ -1,11 +1,11 @@
 package pkg
 
 var (
-	API_URL = "https://ncloud.apigw.ntruss.com/vserver/v2/"
-
+	API_URL                     = "https://ncloud.apigw.ntruss.com/vserver/v2/"
 	GET_SERVER_INSTANCE_PATH    = "getServerInstanceList"
 	CREATE_SERVER_INSTANCE_PATH = "createServerInstances"
 	UPDATE_SERVER_INSTANCE_PATH = "changeServerInstanceSpec"
+	START_SERVER_INSTANCE_PATH  = "startServerInstances"
 	STOP_SERVER_INSTANCE_PATH   = "stopServerInstances"
 	DELETE_SERVER_INSTANCE_PATH = "terminateServerInstances"
 

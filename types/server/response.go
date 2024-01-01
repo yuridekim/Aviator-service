@@ -32,6 +32,13 @@ type DeleteServerResponse struct {
 	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
 }
 
+type StartServerResponse struct {
+	ReturnCode         int              `xml:"returnCode"`
+	ReturnMessage      string           `xml:"returnMessage"`
+	TotalRows          int              `xml:"totalRows"`
+	ServerInstanceList []ServerInstance `xml:"serverInstanceList>serverInstance"`
+}
+
 type StopServerResponse struct {
 	ReturnCode         int              `xml:"returnCode"`
 	ReturnMessage      string           `xml:"returnMessage"`
