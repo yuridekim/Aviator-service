@@ -55,7 +55,7 @@ func (server *ServerService) List(url string, request *types.ListServerRequest) 
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
+	//println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -105,7 +105,7 @@ func (server *ServerService) Create(url string, request *types.CreateServerReque
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
+	//println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -155,7 +155,7 @@ func (server *ServerService) Update(url string, request *types.UpdateServerReque
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
+	//println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -202,7 +202,7 @@ func (server *ServerService) Stop(url string, request *types.StopServerRequest) 
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
+	//println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -249,7 +249,7 @@ func (server *ServerService) Delete(url string, request *types.DeleteServerReque
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
+	//println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
