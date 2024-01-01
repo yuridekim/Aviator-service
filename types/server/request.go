@@ -18,9 +18,9 @@ type CreateServerRequest struct {
 	//MemberServerImageInstanceNo string `json:"memberServerImageInstanceNo"` // Conditional
 	ServerImageProductCode string `json:"serverImageProductCode"` // Conditional
 	//ServerImageNo               string `json:"serverImageNo"`               // Conditional
-	VpcNo    string `json:"vpcNo"`
-	SubnetNo string `json:"subnetNo"`
-	//ServerProductCode                 string               `json:"serverProductCode"`
+	VpcNo             string `json:"vpcNo"`
+	SubnetNo          string `json:"subnetNo"`
+	ServerProductCode string `json:"serverProductCode"`
 	//ServerSpecCode string `json:"serverSpecCode"` // Conditional
 	//IsEncryptedBaseBlockStorageVolume bool                 `json:"isEncryptedBaseBlockStorageVolume"`
 	//FeeSystemTypeCode                 string               `json:"feeSystemTypeCode"`
@@ -104,6 +104,10 @@ type UpdateServerRequest struct {
 	ServerInstanceNo  string `json:"serverInstanceNo"`
 	ServerProductCode string `json:"serverProductCode"` //conditional
 	// ServerSpecCode    string `json:"serverSpecCode"`    //conditional
+}
+
+type GetServerProductListRequest struct {
+	ServerImageProductCode string `json:"serverImageProductCode"`
 }
 
 // type ProductInstance struct {

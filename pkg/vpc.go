@@ -46,7 +46,6 @@ func (vpc *VpcService) Get(url string) (*serverType.VpcList, error) {
 
 	// Read the response body
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
