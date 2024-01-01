@@ -9,23 +9,24 @@ import (
 	serverType "github.com/cloud-club/Aviator-service/types/server"
 )
 
-type ImageProductService struct{}
+type ProductService struct{}
 
-func NewImageProductService() ImageProductInterface {
-	return &ImageProductService{}
+func NewProductService() ProductInterface {
+	return &ProductService{}
 }
 
-type ImageProductInterface interface {
-	Get(url string) (*serverType.ProductList, error)
+type ProductInterface interface {
+	Get(url string, request *serverType.GetProductRequest) (*serverType.ProductList, error)
 }
 
-func (product *ImageProductService) Get(url string) (*serverType.ProductList, error) {
+func (product *ProductService) Get(url string, request *serverType.GetProductRequest) (*serverType.ProductList, error) {
 	// Set url with query parameters
 	// However, there is no must required query parameters for this API, so we will comment this line right now.
 	//requestParams := serverType.CreateRequestString(request)
+	requestParams := serverType.RequestString(request)
 
 	// Create an HTTP request
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequest(http.MethodGet, url+requestParams, nil)
 	if err != nil {
 		return nil, err
 	}

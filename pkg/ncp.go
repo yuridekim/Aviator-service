@@ -20,7 +20,8 @@ type NcpService struct {
 	Subnet             SubnetInterface
 	AccessControlGroup AccessControlGroupInterface
 	Vpc                VpcInterface
-	ServerImageProduct ProductInterface
+	ServerImageProduct ImageProductInterface
+	ServerProduct      ProductInterface
 }
 
 func NewNcpService(token string) *NcpService {
