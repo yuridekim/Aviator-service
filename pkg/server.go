@@ -1,13 +1,17 @@
 package pkg
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	types "github.com/cloud-club/Aviator-service/types/server"
 )
+
+var errorNotStopped = errors.New("Server is not stopped before update or deletion")
 
 type ServerService struct {
 	accessKey string
@@ -26,6 +30,21 @@ type ServerInterface interface {
 	Start(url string, request *types.StartServerRequest) (*types.StartServerResponse, error)
 	Stop(url string, request *types.StopServerRequest) (*types.StopServerResponse, error)
 	Delete(url string, request *types.DeleteServerRequest) (*types.DeleteServerResponse, error)
+}
+
+func checkStatus(server *ServerService, condition string, repeat int) bool {
+	for i := 0; i < repeat; i++ {
+		lsr := &types.ListServerRequest{RegionCode: "KR"}
+		resp, _ := server.List(API_URL+GET_SERVER_INSTANCE_PATH, lsr)
+
+		serverStatus := resp.ServerInstanceList[0].ServerInstanceStatus.Code
+		if serverStatus == condition {
+			return true
+		}
+		time.Sleep(time.Second)
+	}
+
+	return false
 }
 
 func (server *ServerService) List(url string, request *types.ListServerRequest) (*types.ListServerResponse, error) {
@@ -56,7 +75,6 @@ func (server *ServerService) List(url string, request *types.ListServerRequest) 
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -106,14 +124,11 @@ func (server *ServerService) Create(url string, request *types.CreateServerReque
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
 
-	// fmt.Println("request:", requestParams)
-	// fmt.Println(string(responseByteData))
 	var csr *types.CreateServerResponse
 	responseInterface, err := types.MapResponse(responseByteData, &csr)
 
@@ -129,6 +144,10 @@ func (server *ServerService) Create(url string, request *types.CreateServerReque
 }
 
 func (server *ServerService) Update(url string, request *types.UpdateServerRequest) (*types.UpdateServerResponse, error) {
+	var usr *types.UpdateServerResponse
+	if serverStatus := checkStatus(server, "NSTOP", 25); !serverStatus {
+		return usr, errorNotStopped
+	}
 	requestParams := types.RequestString(request)
 
 	// Create an HTTP request
@@ -156,14 +175,12 @@ func (server *ServerService) Update(url string, request *types.UpdateServerReque
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
 
-	var csr *types.UpdateServerResponse
-	responseInterface, err := types.MapResponse(responseByteData, &csr)
+	responseInterface, err := types.MapResponse(responseByteData, &usr)
 
 	if err != nil {
 		log.Fatal(err)
@@ -203,14 +220,13 @@ func (server *ServerService) Start(url string, request *types.StartServerRequest
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
 
-	var csr *types.StartServerResponse
-	responseInterface, err := types.MapResponse(responseByteData, &csr)
+	var ssr *types.StartServerResponse
+	responseInterface, err := types.MapResponse(responseByteData, &ssr)
 
 	if err != nil {
 		log.Fatal(err)
@@ -250,7 +266,6 @@ func (server *ServerService) Stop(url string, request *types.StopServerRequest) 
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -270,6 +285,10 @@ func (server *ServerService) Stop(url string, request *types.StopServerRequest) 
 }
 
 func (server *ServerService) Delete(url string, request *types.DeleteServerRequest) (*types.DeleteServerResponse, error) {
+	var dsr *types.DeleteServerResponse
+	if serverStatus := checkStatus(server, "NSTOP", 20); !serverStatus {
+		return dsr, errorNotStopped
+	}
 	requestParams := types.RequestString(request)
 
 	// Create an HTTP request
@@ -297,7 +316,6 @@ func (server *ServerService) Delete(url string, request *types.DeleteServerReque
 	}
 
 	responseByteData, err := io.ReadAll(resp.Body)
-	println(string(responseByteData))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
