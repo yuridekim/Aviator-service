@@ -23,6 +23,7 @@ type ServerInterface interface {
 	List(url string, request *types.ListServerRequest) (*types.ListServerResponse, error)
 	Create(url string, request *types.CreateServerRequest, params []int) (*types.CreateServerResponse, error)
 	Update(url string, request *types.UpdateServerRequest) (*types.UpdateServerResponse, error)
+	Start(url string, request *types.StartServerRequest) (*types.StartServerResponse, error)
 	Stop(url string, request *types.StopServerRequest) (*types.StopServerResponse, error)
 	Delete(url string, request *types.DeleteServerRequest) (*types.DeleteServerResponse, error)
 }
@@ -170,6 +171,53 @@ func (server *ServerService) Update(url string, request *types.UpdateServerReque
 	}
 
 	responseStruct := responseInterface.(**types.UpdateServerResponse)
+
+	return *responseStruct, err
+}
+
+func (server *ServerService) Start(url string, request *types.StartServerRequest) (*types.StartServerResponse, error) {
+	requestParams := types.RequestString(request)
+
+	// Create an HTTP request
+	req, err := http.NewRequest(http.MethodGet, url+requestParams, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Set HTTP header for NCP authorization
+	SetNCPHeader(req, server.accessKey, server.secretKey)
+
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the response status
+	if resp.StatusCode != http.StatusOK {
+		// Read the response body and show the body message in error.
+		responseByteData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("%s", responseByteData)
+	}
+
+	responseByteData, err := io.ReadAll(resp.Body)
+	println(string(responseByteData))
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	var csr *types.StartServerResponse
+	responseInterface, err := types.MapResponse(responseByteData, &csr)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	responseStruct := responseInterface.(**types.StartServerResponse)
 
 	return *responseStruct, err
 }
