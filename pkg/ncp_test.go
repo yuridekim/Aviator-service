@@ -13,7 +13,8 @@ import (
 
 func TestCreateAndVerifyToken_success(t *testing.T) {
 	ncp := pkg.NewNcpService("ncp service token")
-	ncp.Server = pkg.NewServerService("ncp access key", "ncp secret key")
+	ncp.Key = *auth.NewKeyService("ncp access key", "ncp secret key")
+	ncp.Server = pkg.NewServerService(&ncp.Key)
 
 	err := ncp.CreateToken("admin", "CloudClubAdmin", []string{"admin"})
 	if err != nil {
@@ -33,7 +34,8 @@ func TestCreateAndVerifyToken_success(t *testing.T) {
 
 func TestCreateAndVerifyToken_fail_token_is_invalid(t *testing.T) {
 	ncp := pkg.NewNcpService("ncp service token")
-	ncp.Server = pkg.NewServerService("ncp access key", "ncp secret key")
+	ncp.Key = *auth.NewKeyService("ncp access key", "ncp secret key")
+	ncp.Server = pkg.NewServerService(&ncp.Key)
 
 	err := ncp.CreateToken("admin", "CloudClubAdmin", []string{"admin"})
 	if err != nil {

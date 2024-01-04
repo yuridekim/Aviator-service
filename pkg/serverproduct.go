@@ -6,13 +6,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/cloud-club/Aviator-service/types/auth"
 	serverType "github.com/cloud-club/Aviator-service/types/server"
 )
 
-type ProductService struct{}
+type ProductService struct {
+	KeyService *auth.KeyService
+}
 
-func NewProductService() ProductInterface {
-	return &ProductService{}
+func NewProductService(keyService *auth.KeyService) ProductInterface {
+	return &ProductService{KeyService: keyService}
 }
 
 type ProductInterface interface {
@@ -32,7 +35,7 @@ func (product *ProductService) Get(url string, request *serverType.GetProductReq
 	}
 
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, "6CmrDJ4KaswJ10g25GEP", "OvZ7QHH0Bi3AwGn5rlsD7xoC986bEOiIjdbwMFCo")
+	SetNCPHeader(req, product.KeyService.GetAccessKey(), product.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)

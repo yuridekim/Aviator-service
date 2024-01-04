@@ -6,13 +6,16 @@ import (
 	"log"
 	"net/http"
 
+	auth "github.com/cloud-club/Aviator-service/types/auth"
 	serverType "github.com/cloud-club/Aviator-service/types/server"
 )
 
-type SubnetService struct{}
+type SubnetService struct {
+	KeyService *auth.KeyService
+}
 
-func NewSubnetService() SubnetInterface {
-	return &SubnetService{}
+func NewSubnetService(keyService *auth.KeyService) SubnetInterface {
+	return &SubnetService{KeyService: keyService}
 }
 
 type SubnetInterface interface {
@@ -31,7 +34,7 @@ func (subnet *SubnetService) Get(url string) (*serverType.SubnetList, error) {
 	}
 
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, "YnCbljlTZfqRkFOXighj", "bDoQVXDGLJ9BhzpOYxnjSyxNB97dohAUPLeiQC0D")
+	SetNCPHeader(req, subnet.KeyService.GetAccessKey(), subnet.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)

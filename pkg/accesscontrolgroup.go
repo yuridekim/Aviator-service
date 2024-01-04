@@ -6,13 +6,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/cloud-club/Aviator-service/types/auth"
 	serverType "github.com/cloud-club/Aviator-service/types/server"
 )
 
-type AccessControlGroupService struct{}
+type AccessControlGroupService struct {
+	KeyService *auth.KeyService
+}
 
-func NewAccessControlGroupService() AccessControlGroupInterface {
-	return &AccessControlGroupService{}
+func NewAccessControlGroupService(keyService *auth.KeyService) AccessControlGroupInterface {
+	return &AccessControlGroupService{KeyService: keyService}
 }
 
 type AccessControlGroupInterface interface {
@@ -31,7 +34,7 @@ func (acg *AccessControlGroupService) Get(url string) (*serverType.AccessControl
 	}
 
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, "YnCbljlTZfqRkFOXighj", "bDoQVXDGLJ9BhzpOYxnjSyxNB97dohAUPLeiQC0D")
+	SetNCPHeader(req, acg.KeyService.GetAccessKey(), acg.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)

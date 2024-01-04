@@ -6,13 +6,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/cloud-club/Aviator-service/types/auth"
 	serverType "github.com/cloud-club/Aviator-service/types/server"
 )
 
-type NetworkInterfaceService struct{}
+type NetworkInterfaceService struct {
+	KeyService *auth.KeyService
+}
 
-func NewNetworkInterfaceService() NetworkInterface {
-	return &NetworkInterfaceService{}
+func NewNetworkInterfaceService(keyService *auth.KeyService) NetworkInterface {
+	return &NetworkInterfaceService{KeyService: keyService}
 }
 
 type NetworkInterface interface {
@@ -31,7 +34,7 @@ func (networkInterface *NetworkInterfaceService) Get(url string) (*serverType.Ne
 	}
 
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, "YnCbljlTZfqRkFOXighj", "bDoQVXDGLJ9BhzpOYxnjSyxNB97dohAUPLeiQC0D")
+	SetNCPHeader(req, networkInterface.KeyService.GetAccessKey(), networkInterface.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
