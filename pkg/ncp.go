@@ -15,6 +15,7 @@ const (
 
 type NcpService struct {
 	token              string
+	Key                auth.KeyService
 	Server             ServerInterface
 	Network            NetworkInterface
 	Subnet             SubnetInterface

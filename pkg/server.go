@@ -8,19 +8,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cloud-club/Aviator-service/types/auth"
 	types "github.com/cloud-club/Aviator-service/types/server"
 )
 
 var errorNotStopped = errors.New("Server is not stopped before update or deletion")
 
 type ServerService struct {
-	accessKey string
-	secretKey string
+	KeyService *auth.KeyService
 }
 
-//go:generate mockgen -destination=mocks/mock_server.go -package=mocks github.com/cloud-club/Aviator-service/pkg ServerInterface
-func NewServerService(accessKey, secretKey string) *ServerService {
-	return &ServerService{accessKey: accessKey, secretKey: secretKey}
+func NewServerService(keyService *auth.KeyService) *ServerService {
+	return &ServerService{KeyService: keyService}
 }
 
 type ServerInterface interface {
@@ -56,7 +55,7 @@ func (server *ServerService) List(url string, request *types.ListServerRequest) 
 		return nil, err
 	}
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, server.accessKey, server.secretKey)
+	SetNCPHeader(req, server.KeyService.GetAccessKey(), server.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
@@ -105,7 +104,7 @@ func (server *ServerService) Create(url string, request *types.CreateServerReque
 		return nil, err
 	}
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, server.accessKey, server.secretKey)
+	SetNCPHeader(req, server.KeyService.GetAccessKey(), server.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
@@ -156,7 +155,7 @@ func (server *ServerService) Update(url string, request *types.UpdateServerReque
 		return nil, err
 	}
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, server.accessKey, server.secretKey)
+	SetNCPHeader(req, server.KeyService.GetAccessKey(), server.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
@@ -201,7 +200,7 @@ func (server *ServerService) Start(url string, request *types.StartServerRequest
 		return nil, err
 	}
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, server.accessKey, server.secretKey)
+	SetNCPHeader(req, server.KeyService.GetAccessKey(), server.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
@@ -247,7 +246,7 @@ func (server *ServerService) Stop(url string, request *types.StopServerRequest) 
 		return nil, err
 	}
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, server.accessKey, server.secretKey)
+	SetNCPHeader(req, server.KeyService.GetAccessKey(), server.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
@@ -297,7 +296,7 @@ func (server *ServerService) Delete(url string, request *types.DeleteServerReque
 		return nil, err
 	}
 	// Set HTTP header for NCP authorization
-	SetNCPHeader(req, server.accessKey, server.secretKey)
+	SetNCPHeader(req, server.KeyService.GetAccessKey(), server.KeyService.GetSecretKey())
 
 	// Make the HTTP request
 	resp, err := http.DefaultClient.Do(req)
